@@ -17,7 +17,7 @@ function App() {
         };
 
         getTasks();
-        const intervalId = setInterval(getTasks, 1000);
+        const intervalId = setInterval(getTasks, 4000);
 
         return () => clearInterval(intervalId);
     }, [currentPage]);
