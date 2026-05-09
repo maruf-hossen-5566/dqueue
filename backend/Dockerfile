@@ -11,4 +11,8 @@ RUN pip install "fastapi[standard]" uvicorn psycopg2-binary psycopg
 # If you have requirements.txt, install that too:
 RUN pip install -r requirements.txt
 
-CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Copy the startup script
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh  # Make the script executable
+
+CMD ["/app/start.sh"]

@@ -4,9 +4,11 @@ from redis import Redis
 
 from app.core.config import settings
 
-r = Redis(host="localhost", port=6379, decode_responses=True)
+r = Redis.from_url(
+    url=settings.REDIS_URL, decode_responses=True,
+)
 
-QUEUE_NAME = settings.QUEUE_NAME
+QUEUE_NAME = settings.REDIS_QUEUE_NAME
 
 
 def enqueue(job_id: UUID):
