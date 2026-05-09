@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: dqueue_backend
-    runtime: python
-    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 10000
-    autoDeploy: true
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.11
