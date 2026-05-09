@@ -1,0 +1,19 @@
+const ImageOptimize = ({handleFormChange}) => {
+    return (
+        <>
+            <label htmlFor="task_payload">Payload</label>
+            <input
+                type="file"
+                accept=".png,.jpg,.gif,.webp,.avif"
+                className="p-4 border"
+                name="payload"
+                id="task_payload"
+                onChange={(e) => handleFormChange(e)}
+                required
+                multiple
+            />
+        </>
+    );
+};
+
+export default ImageOptimize;

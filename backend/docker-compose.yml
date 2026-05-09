@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+    db:
+        image: postgres:16
+        container_name: ${PROJECT_NAME}_db
+        restart: always
+        environment:
+            POSTGRES_USER: ${ADMIN_USER}
+            POSTGRES_PASSWORD: ${ADMIN_PASS}
+            POSTGRES_DB: ${PROJECT_NAME}_db
+        ports:
+            - "5432:5432"
+        volumes:
+            - ${PROJECT_NAME}_db_data:/var/lib/postgresql/data
+    redis:
+        image: redis
+        container_name: ${PROJECT_NAME}_redis
+        restart: always
+        ports:
+            - "6379:6379"
+        volumes:
+            - ${PROJECT_NAME}_redis_data:/var/lib/redis/data
+
+volumes:
+    dqueue_db_data:
+    dqueue_redis_data:
