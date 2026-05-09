@@ -8,7 +8,7 @@ load_dotenv()
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = os.getenv("PROJECT_NAME")
-    ALLOWED_ORIGINS: str = os.getenv("PROJECT_NAME").split(",")
+    ALLOWED_ORIGINS: str = os.getenv("ALLOWED_ORIGINS").split(",")
     ADMIN_USER: str = os.getenv("ADMIN_USER")
     ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD")
     DATABASE_URL: str = os.getenv("DATABASE_URL")
