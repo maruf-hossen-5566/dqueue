@@ -2,14 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.job import router as job_router
+from app.core.config import settings
 
 app = FastAPI(root_path="/api")
 
-origins = [
-    "http://localhost",
-    "http://localhost:5173",
-    "http://localhost:4173",
-]
+origins = settings.ALLOWED_ORIGINS
 
 app.add_middleware(
     CORSMiddleware,
