@@ -28,15 +28,12 @@ const CreateTask = ({setData, setErrors}) => {
             ...prevState,
             [name]: type === "file" ? files : value,
         }));
-
-        console.log("FormData: changed", formData);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
 
-        console.log("FOrmData: ", formData);
 
         const data = new FormData();
         data.set("name", formData.name);
@@ -96,9 +93,9 @@ const CreateTask = ({setData, setErrors}) => {
                     value={formData.max_retries}
                     onChange={(e) => handleFormChange(e)}
                     className="p-4 border"
-                    // max={10}
-                    // min={1}
-                    // required
+                    max={10}
+                    min={1}
+                    required
                 />
             </div>
             <div className="col-span-full flex flex-col gap-2">
@@ -113,7 +110,7 @@ const CreateTask = ({setData, setErrors}) => {
                 ) : formData.name === "string_process" ? (
                     <StringProcess handleFormChange={handleFormChange}/>
                 ) : (
-                    ""
+                    <></>
                 )}
             </div>
             <div className="col-span-full flex flex-col gap-2">
