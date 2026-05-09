@@ -85,7 +85,7 @@ const Tasks = ({data, setData, setCurrentPage, setErrors}) => {
                     </tr>
                     </thead>
                     <tbody id="tasks-table-body">
-                    {data && data.items.length > 0 ? (
+                    {data && data?.items?.length > 0 ? (
                         data?.items?.map((task) => (
                             <tr
                                 className="border-b"
