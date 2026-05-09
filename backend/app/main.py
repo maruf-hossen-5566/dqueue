@@ -3,8 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.job import router as job_router
 from app.core.config import settings
+from app.db.base import Base
+from app.db.session import engine
 
 app = FastAPI(root_path="/api")
+
+# This line must be added to create all the tables
+Base.metadata.create_all(bind=engine)
 
 origins = settings.ALLOWED_ORIGINS
 
