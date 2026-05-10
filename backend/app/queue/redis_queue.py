@@ -4,9 +4,8 @@ from redis import Redis
 
 from app.core.config import settings
 
-r = Redis.from_url(
-    url=settings.REDIS_URL, decode_responses=True,
-)
+# r = Redis(decode_responses=True)  ## for development locally
+r = Redis.from_url(url=settings.REDIS_URL, decode_responses=True)
 
 QUEUE_NAME = settings.REDIS_QUEUE_NAME
 
@@ -20,6 +19,11 @@ def dequeue():
     if job_id:
         return job_id
     return None
+
+
+def remove_job(job_id: UUID):
+    if job_id:
+        r.lrem(QUEUE_NAME, 0, str(job_id))
 
 
 def delete_queue():

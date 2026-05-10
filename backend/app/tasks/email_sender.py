@@ -1,7 +1,7 @@
 from smtplib import SMTPException
 
+import resend
 from email_validator import validate_email, EmailNotValidError
-from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
 
 from app.core.config import settings
 from app.core.logging import setup_logger
@@ -10,15 +10,7 @@ from app.worker_logic.exception import TaskException
 
 logger = setup_logger(__name__)
 
-config = ConnectionConfig(
-    MAIL_USERNAME=settings.EMAIL_ADDRESS,
-    MAIL_PASSWORD=settings.EMAIL_PASSWORD,
-    MAIL_FROM=settings.EMAIL_ADDRESS,
-    MAIL_PORT=587,
-    MAIL_SERVER="smtp.gmail.com",
-    MAIL_STARTTLS=True,
-    MAIL_SSL_TLS=False,
-)
+resend.api_key = settings.RESEND_API_KEY
 
 
 @task(name="send_email")
@@ -44,19 +36,22 @@ async def send_email(payload: str):
     mail_body = f"""
         <div>
             <h1>DQueue — Distributed Task Processing System for Python</h1>
-            <p>This email sent using <strong>DQueue</strong></p>
+            <h3>This email sent using <strong>DQueue</strong></h3>
         </div>
         """
-    message = MessageSchema(
-        subject="DQueue - Distributed Task Processing System for Python",
-        recipients=list(valid_emails),
-        body=mail_body,
-        subtype=MessageType.html,
-    )
+
+    params: resend.Emails.SendParams = {
+        "from": f"{settings.RESEND_NAME} <{settings.RESEND_EMAIL}>",
+        "to": list(valid_emails),
+        "subject": "DQueue - Distributed Task Processing System for Python",
+        "html": mail_body,
+    }
     try:
-        fm = FastMail(config=config)
-        await fm.send_message(message)
-        logger.info(f"Mail sent successfully to <{emails}>")
+        resend.Emails.send(params)
+        logger.info(f"Mail sent successfully to <{valid_emails}>")
     except SMTPException as error:
+        logger.error(f"Failed to send email to <{emails}>:{error}")
+        raise TaskException(error) from error
+    except Exception as error:
         logger.error(f"Failed to send email to <{emails}>:{error}")
         raise TaskException(error) from error

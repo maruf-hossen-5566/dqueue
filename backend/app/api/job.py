@@ -11,7 +11,7 @@ from app.core.config import settings
 from app.core.logging import setup_logger
 from app.imagekitio.imagekit import upload_file
 from app.models.job import Job
-from app.queue.redis_queue import enqueue
+from app.queue.redis_queue import enqueue, remove_job
 from app.schemas.job import CustomPagination, Names, JobResponse
 
 logger = setup_logger(__name__)
@@ -146,6 +146,8 @@ def delete_job(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Job not found")
 
     try:
+        # remove job from redis_queue
+        remove_job(job_id)
         db.delete(job)
         db.commit()
     except Exception as error:
