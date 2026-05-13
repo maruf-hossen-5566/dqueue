@@ -34,13 +34,12 @@ EXCLUDED_IPS = {settings.ADMIN_IP_ADDRESS}
 
 
 def get_real_ip(request: Request) -> str | None:
-    # Get the X-Forwarded-For header (set by Render)
     forwarded_for = request.headers.get("X-Forwarded-For")
     if forwarded_for:
-        # The first IP is the client IP (e.g., "client_ip, proxy1, proxy2")
+        # Split the header and take the first IP (real client IP)
         ip = forwarded_for.split(",")[0].strip()
         return ip
-    # Fallback to direct remote address (unlikely to be needed on Render)
+    # Fallback to direct remote address (unlikely on Render)
     return request.client.host
 
 
@@ -56,12 +55,12 @@ def get_jobs(
     db: Session = Depends(get_db),
 ):
     logger.info(f"{'-' * 100}")
-    logger.info(f"IP Address: {request.headers.get('X-Forwarded-For')}")
+    logger.info(f"IP Address: {get_real_ip(request)}")
     logger.info(f"{'-' * 100}")
     params = Params(page=page, size=size)
     jobs = (
         db.query(Job)
-        .filter(Job.created_by == request.client.host)
+        .filter(Job.created_by == get_real_ip(request))
         .order_by(Job.created_at.desc())
     )
     paginated_data = paginate(jobs, params=params)
@@ -92,14 +91,14 @@ async def create_job(
 ):
     logger.info("Create job...")
     logger.info(f"{'-' * 100}")
-    logger.info(f"IP Address: {request.headers.get('X-Forwarded-For')}")
+    logger.info(f"IP Address: {get_real_ip(request)}")
     logger.info(f"{'-' * 100}")
     file_dependent_jobs = [Names.IMAGE_OPTIMIZE, Names.MERGE_PDF]
 
     job = Job(
         name=name,
         max_retries=max_retries,
-        created_by=request.client.host,
+        created_by=get_real_ip(request),
     )
 
     if not payload and not files:
