@@ -1,17 +1,42 @@
-PyQueue is a distributed task processing system inspired by tools like Celery and Sidekiq. It enables asynchronous execution of background jobs using a queue-based architecture, allowing backend services to offload long-running or failure-prone tasks.
+# DQueue 🚀
+A distributed task queue for Python backends using PostgreSQL as the message broker. Built to handle asynchronous background workloads with fault tolerance and atomic job processing.
 
-The system is designed with reliability and scalability in mind, featuring worker processes, retry strategies with exponential backoff, and fault isolation through dead letter queues. It provides a clean separation between task producers and consumers, making it suitable for real-world backend systems.
+## 📁 Project Structure
+- app/ — FastAPI application and core logic
+- worker/ — Standalone worker process for task execution
+- alembic/ — Database schema migrations
+- frontend/ — Task monitoring UI
 
-PyQueue can be integrated into multi-tenant applications to handle operations such as email delivery, audit logging, scheduled jobs, and other asynchronous workflows.
+## Quick Start
+### 1. Install Dependencies (using uv):
+```bash
+uv sync
+```
+or
+```base
+pip install -r requirements.txt
+```
 
-Key highlights:
+### 2. DB Setup:
+```bash
+docker-compose up -d
+alembic upgrade head
+```
 
-- Distributed worker architecture
-    
-- Retry and backoff strategies for fault tolerance
-    
-- Task lifecycle tracking (pending, running, failed, completed)
-    
-- Queue-based decoupling of services
-    
-- Designed for integration with scalable backend systems
+### 3. Run Services:
+```bash
+# Terminal 1
+uvicorn app.main:app
+
+# Terminal 2
+python -m worker.main
+```
+
+## 🛠️ Tech Stack
+- Backend: FastAPI, SQLAlchemy (PostgreSQL)
+- Tooling: uv (dependency management), Docker
+- Migrations: Alembic
+
+---
+
+Built by [SM Maruf Hossen](https://github.com/maruf-hossen-5566)
