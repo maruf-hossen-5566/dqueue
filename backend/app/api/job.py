@@ -33,14 +33,18 @@ router = APIRouter()
 EXCLUDED_IPS = {settings.ADMIN_IP_ADDRESS}
 
 
-def custom_key_func(request: Request):
-    ip = get_remote_address(request)
-    if ip in EXCLUDED_IPS:
-        return None
-    return ip
+def get_real_ip(request: Request) -> str | None:
+    # Get the X-Forwarded-For header (set by Render)
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        # The first IP is the client IP (e.g., "client_ip, proxy1, proxy2")
+        ip = forwarded_for.split(",")[0].strip()
+        return ip
+    # Fallback to direct remote address (unlikely to be needed on Render)
+    return request.client.host
 
 
-limiter = Limiter(key_func=custom_key_func)
+limiter = Limiter(key_func=get_real_ip)
 add_pagination(router)
 
 
@@ -51,8 +55,15 @@ def get_jobs(
     page: int = Query(1),
     db: Session = Depends(get_db),
 ):
+    logger.info(f"{'-' * 100}")
+    logger.info(f"IP Address: {request.client.host}")
+    logger.info(f"{'-' * 100}")
     params = Params(page=page, size=size)
-    jobs = db.query(Job).order_by(Job.created_at.desc())
+    jobs = (
+        db.query(Job)
+        .filter(Job.created_by == request.client.host)
+        .order_by(Job.created_at.desc())
+    )
     paginated_data = paginate(jobs, params=params)
 
     res_data = CustomPagination(
@@ -80,6 +91,9 @@ async def create_job(
     db: Session = Depends(get_db),
 ):
     logger.info("Create job...")
+    logger.info(f"{'-' * 100}")
+    logger.info(f"IP Address: {request.client.host}")
+    logger.info(f"{'-' * 100}")
     file_dependent_jobs = [Names.IMAGE_OPTIMIZE, Names.MERGE_PDF]
 
     job = Job(

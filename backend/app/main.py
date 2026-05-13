@@ -4,12 +4,14 @@ from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 
 import app.models
+from app.api.job import limiter
 from app.api.job import router as job_router
 from app.core.config import settings
 from app.db.base import Base
 from app.db.session import engine
 
 app = FastAPI(root_path="/api")
+app.state.limiter = limiter
 
 Base.metadata.create_all(bind=engine)
 
