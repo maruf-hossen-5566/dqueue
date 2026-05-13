@@ -19,28 +19,40 @@ class CustomPagination(Page[Any]):
     succeed_item_count: int = 0
     failed_item_count: int = 0
 
-    def __init__(self, db: Session = None, **data):
+    def __init__(self, ip_address, db: Session = None, **data):
         super().__init__(**data)
 
         if db:
             self.pending_item_count = (
                 db.query(func.count(Job.id))
-                .filter(Job.status == Status.PENDING)
+                .filter(
+                    Job.created_by == ip_address,
+                    Job.status == Status.PENDING,
+                )
                 .scalar()
             )
             self.running_item_count = (
                 db.query(func.count(Job.id))
-                .filter(Job.status == Status.RUNNING)
+                .filter(
+                    Job.created_by == ip_address,
+                    Job.status == Status.RUNNING,
+                )
                 .scalar()
             )
             self.succeed_item_count = (
                 db.query(func.count(Job.id))
-                .filter(Job.status == Status.SUCCEED)
+                .filter(
+                    Job.created_by == ip_address,
+                    Job.status == Status.SUCCEED,
+                )
                 .scalar()
             )
             self.failed_item_count = (
                 db.query(func.count(Job.id))
-                .filter(Job.status == Status.FAILED)
+                .filter(
+                    Job.created_by == ip_address,
+                    Job.status == Status.FAILED,
+                )
                 .scalar()
             )
 

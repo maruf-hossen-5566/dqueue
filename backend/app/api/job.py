@@ -54,9 +54,6 @@ def get_jobs(
     page: int = Query(1),
     db: Session = Depends(get_db),
 ):
-    logger.info(f"{'-' * 100}")
-    logger.info(f"IP Address: {get_real_ip(request)}")
-    logger.info(f"{'-' * 100}")
     params = Params(page=page, size=size)
     jobs = (
         db.query(Job)
@@ -66,6 +63,7 @@ def get_jobs(
     paginated_data = paginate(jobs, params=params)
 
     res_data = CustomPagination(
+        ip_address=get_real_ip(request),
         items=[
             JobResponse.model_validate(i).model_dump() for i in paginated_data.items
         ],
@@ -90,9 +88,6 @@ async def create_job(
     db: Session = Depends(get_db),
 ):
     logger.info("Create job...")
-    logger.info(f"{'-' * 100}")
-    logger.info(f"IP Address: {get_real_ip(request)}")
-    logger.info(f"{'-' * 100}")
     file_dependent_jobs = [Names.IMAGE_OPTIMIZE, Names.MERGE_PDF]
 
     job = Job(
