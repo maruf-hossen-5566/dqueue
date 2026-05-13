@@ -1,6 +1,7 @@
 import os
 
 from dotenv import load_dotenv
+from pydantic.networks import IPvAnyAddress, IPvAnyAddressType
 from pydantic.v1 import BaseSettings
 
 load_dotenv()
@@ -9,8 +10,13 @@ load_dotenv()
 class Settings(BaseSettings):
     PROJECT_NAME: str = os.getenv("PROJECT_NAME")
     ALLOWED_ORIGINS: str = os.getenv("ALLOWED_ORIGINS").split(",")
+    # admin
     ADMIN_USER: str = os.getenv("ADMIN_USER")
     ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD")
+    ADMIN_IP_ADDRESS: str = os.getenv("ADMIN_IP_ADDRESS")
+    # auth
+    AUTH_SECRET_KEY: str = os.getenv("AUTH_SECRET_KEY")
+    AUTH_TOKEN_EXPIRY_MINUTES: int = os.getenv("AUTH_TOKEN_EXPIRY_MINUTES")
     # db
     DATABASE_URL: str = os.getenv("DATABASE_URL")
     # redis

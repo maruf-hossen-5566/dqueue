@@ -1,14 +1,16 @@
 from datetime import datetime
 from enum import Enum
+from ipaddress import IPv4Address
 from typing import Any, Optional
 from uuid import UUID
 
 from fastapi_pagination import Page
 from pydantic import BaseModel, Field
+from pydantic.networks import IPvAnyAddress
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.models.job import Status, Job
+from app.models.job import Job, Status
 
 
 class CustomPagination(Page[Any]):
@@ -21,10 +23,26 @@ class CustomPagination(Page[Any]):
         super().__init__(**data)
 
         if db:
-            self.pending_item_count = db.query(func.count(Job.id)).filter(Job.status == Status.PENDING).scalar()
-            self.running_item_count = db.query(func.count(Job.id)).filter(Job.status == Status.RUNNING).scalar()
-            self.succeed_item_count = db.query(func.count(Job.id)).filter(Job.status == Status.SUCCEED).scalar()
-            self.failed_item_count = db.query(func.count(Job.id)).filter(Job.status == Status.FAILED).scalar()
+            self.pending_item_count = (
+                db.query(func.count(Job.id))
+                .filter(Job.status == Status.PENDING)
+                .scalar()
+            )
+            self.running_item_count = (
+                db.query(func.count(Job.id))
+                .filter(Job.status == Status.RUNNING)
+                .scalar()
+            )
+            self.succeed_item_count = (
+                db.query(func.count(Job.id))
+                .filter(Job.status == Status.SUCCEED)
+                .scalar()
+            )
+            self.failed_item_count = (
+                db.query(func.count(Job.id))
+                .filter(Job.status == Status.FAILED)
+                .scalar()
+            )
 
 
 class Names(str, Enum):
@@ -58,6 +76,8 @@ class JobResponse(BaseModel):
     error: Optional[str]
     created_at: datetime
     updated_at: datetime
+    # ---
+    created_by: IPvAnyAddress
 
     class Config:
         from_attributes = True

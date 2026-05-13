@@ -1,9 +1,21 @@
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Form, UploadFile, File
-from fastapi_pagination import add_pagination, Params
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Query,
+    Request,
+    UploadFile,
+    status,
+)
+from fastapi_pagination import Params, add_pagination
 from fastapi_pagination.ext.sqlalchemy import paginate
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
@@ -12,28 +24,45 @@ from app.core.logging import setup_logger
 from app.imagekitio.imagekit import upload_file
 from app.models.job import Job
 from app.queue.redis_queue import enqueue, remove_job
-from app.schemas.job import CustomPagination, Names, JobResponse
+from app.schemas.job import CustomPagination, JobResponse, Names
 
 logger = setup_logger(__name__)
 
 router = APIRouter()
+
+EXCLUDED_IPS = {settings.ADMIN_IP_ADDRESS}
+
+
+def custom_key_func(request: Request):
+    ip = get_remote_address(request)
+    if ip in EXCLUDED_IPS:
+        return None
+    return ip
+
+
+limiter = Limiter(key_func=custom_key_func)
 add_pagination(router)
 
 
 @router.get("/")
 def get_jobs(
+    request: Request,
     size: int = Query(10, le=20),
     page: int = Query(1),
     db: Session = Depends(get_db),
 ):
-    logger.info("Get jobs...")
-
     params = Params(page=page, size=size)
-    jobs = db.query(Job).order_by(Job.created_at.desc())
+    jobs = (
+        db.query(Job)
+        .filter(Job.created_by == request.client.host)
+        .order_by(Job.created_at.desc())
+    )
     paginated_data = paginate(jobs, params=params)
 
     res_data = CustomPagination(
-        items=[JobResponse.model_validate(i).model_dump() for i in paginated_data.items],
+        items=[
+            JobResponse.model_validate(i).model_dump() for i in paginated_data.items
+        ],
         size=paginated_data.size,
         page=paginated_data.page,
         pages=paginated_data.pages,
@@ -45,7 +74,9 @@ def get_jobs(
 
 
 @router.post("/", response_model=JobResponse)
+@limiter.limit("10/day")
 async def create_job(
+    request: Request,
     name: Names = Form(),
     max_retries: int = Form(ge=1, le=10),
     payload: Optional[str] = Form(None),
@@ -58,10 +89,13 @@ async def create_job(
     job = Job(
         name=name,
         max_retries=max_retries,
+        created_by=request.client.host,
     )
 
     if not payload and not files:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "payload: Field required")
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT, "payload: Field required"
+        )
 
     if payload:
         job.payload = payload
