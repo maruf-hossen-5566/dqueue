@@ -52,11 +52,7 @@ def get_jobs(
     db: Session = Depends(get_db),
 ):
     params = Params(page=page, size=size)
-    jobs = (
-        db.query(Job)
-        .filter(Job.created_by == request.client.host)
-        .order_by(Job.created_at.desc())
-    )
+    jobs = db.query(Job).order_by(Job.created_at.desc())
     paginated_data = paginate(jobs, params=params)
 
     res_data = CustomPagination(
