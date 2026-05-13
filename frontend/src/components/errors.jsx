@@ -4,7 +4,7 @@ const Errors = ({errors, setErrors}) => {
         setErrors(prev => (prev.filter((_, i) => i !== idx)))
     }
 
-    // console.log("Errors", errors)
+    console.log("Errors", errors)
 
 
     return (
