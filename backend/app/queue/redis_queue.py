@@ -4,8 +4,8 @@ from redis import Redis
 
 from app.core.config import settings
 
-r = Redis(decode_responses=True)  ## for development locally
-# r = Redis.from_url(url=settings.REDIS_URL, decode_responses=True)
+# r = Redis(decode_responses=True)  ## for development locally
+r = Redis.from_url(url=settings.REDIS_URL, decode_responses=True)
 
 QUEUE_NAME = settings.REDIS_QUEUE_NAME
 
