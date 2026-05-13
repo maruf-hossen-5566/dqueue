@@ -56,7 +56,7 @@ def get_jobs(
     db: Session = Depends(get_db),
 ):
     logger.info(f"{'-' * 100}")
-    logger.info(f"IP Address: {request.client.host}")
+    logger.info(f"IP Address: {request.headers.get('X-Forwarded-For')}")
     logger.info(f"{'-' * 100}")
     params = Params(page=page, size=size)
     jobs = (
@@ -92,7 +92,7 @@ async def create_job(
 ):
     logger.info("Create job...")
     logger.info(f"{'-' * 100}")
-    logger.info(f"IP Address: {request.client.host}")
+    logger.info(f"IP Address: {request.headers.get('X-Forwarded-For')}")
     logger.info(f"{'-' * 100}")
     file_dependent_jobs = [Names.IMAGE_OPTIMIZE, Names.MERGE_PDF]
 
