@@ -105,7 +105,7 @@ async def create_job(
     JobResponse
         Created job instance
     """
-    return __create_job(
+    return await __create_job(
         request,
         name,
         max_retries,
