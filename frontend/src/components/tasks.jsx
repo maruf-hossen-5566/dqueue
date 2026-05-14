@@ -2,11 +2,14 @@ import Pagination from "@/components/pagination.jsx";
 import {deleteJob} from "@/api/jobs.js";
 import ResultPopup from "./result_popup";
 import ErrorPopup from "./error_popup";
+import {useState} from "react";
 
 const Tasks = ({data, setData, setCurrentPage, setErrors}) => {
+    const [isLoading, setIsLoading] = useState(false)
 
     const deleteTask = async (e, id) => {
         e.preventDefault();
+        setIsLoading(true);
 
         try {
             await deleteJob(id);
@@ -19,6 +22,8 @@ const Tasks = ({data, setData, setCurrentPage, setErrors}) => {
                 JSON.stringify(error?.response?.data?.detail),
                 ...prev,
             ]));
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -272,7 +277,8 @@ const Tasks = ({data, setData, setCurrentPage, setErrors}) => {
                                         onClick={(e) =>
                                             deleteTask(e, task.id)
                                         }
-                                        className="size-10 flex items-center justify-center text-red-500 hover:text-white hover:bg-red-500"
+                                        className="size-10 flex items-center justify-center text-red-500 hover:text-white hover:bg-red-500 disabled:opacity-50"
+                                        disabled={isLoading}
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
