@@ -117,7 +117,7 @@ async def create_job(
 
 
 @router.delete("/{job_id}")
-async def delete_job(
+def delete_job(
     request: Request,
     job_id: UUID,
     db: Session = Depends(get_db),

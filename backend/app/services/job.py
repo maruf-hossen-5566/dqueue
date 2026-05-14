@@ -21,7 +21,7 @@ from app.schemas.job import CustomPagination, JobResponse, Names
 logger = setup_logger(__name__)
 
 
-async def __get_jobs(
+def __get_jobs(
     request: Request,
     size: int,
     page: int,
