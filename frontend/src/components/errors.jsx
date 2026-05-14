@@ -4,9 +4,6 @@ const Errors = ({errors, setErrors}) => {
         setErrors(prev => (prev.filter((_, i) => i !== idx)))
     }
 
-    console.log("Errors", errors)
-
-
     return (
         <ul
             className="w-full space-y-4 sticky top-0 z-40"

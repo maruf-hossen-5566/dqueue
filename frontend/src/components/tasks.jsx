@@ -4,6 +4,7 @@ import ResultPopup from "./result_popup";
 import ErrorPopup from "./error_popup";
 
 const Tasks = ({data, setData, setCurrentPage, setErrors}) => {
+
     const deleteTask = async (e, id) => {
         e.preventDefault();
 
@@ -14,11 +15,10 @@ const Tasks = ({data, setData, setCurrentPage, setErrors}) => {
                 items: prev.items.filter((item) => item.id !== id),
             }));
         } catch (error) {
-            console.log("Task delete error: ", error);
-            setErrors((prev) => [
+            setErrors((prev) => ([
                 JSON.stringify(error?.response?.data?.detail),
-                prev,
-            ]);
+                ...prev,
+            ]));
         }
     };
 

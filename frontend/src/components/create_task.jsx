@@ -53,7 +53,6 @@ const CreateTask = ({setData, setErrors}) => {
             const res = await createJob(data);
             setData((prev) => ({...prev, items: [res.data, ...prev.items]}));
         } catch (error) {
-            console.log("Error: ", error?.response);
             setErrors((prev) => [
                 JSON.stringify(error?.response?.data?.detail),
                 ...prev,

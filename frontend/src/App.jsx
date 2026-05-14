@@ -43,6 +43,7 @@ function App() {
                         data={data}
                         setCurrentPage={setCurrentPage}
                         setData={setData}
+                        setErrors={setErrors}
                     />
                 </div>
             </div>
